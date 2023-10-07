@@ -1,0 +1,56 @@
+import imdb
+import csv
+
+# Create an IMDb object
+ia = imdb.IMDb()
+
+search_type = input("Enter 'M' to search for movies or 'P' to search for people: ").upper()
+
+if search_type == 'M':
+    search_query = input("Enter a movie title or search query: ")
+
+    results = ia.search_movie(search_query)
+
+    if not results:
+        print("No movies found for the given query.")
+    else:
+        csv_filename = "movie_data.csv"
+        csv_headers = ["Title", "Year", "Genres", "Plot Outline"]
+
+        with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(csv_headers)
+
+            # Iterate through the search results and store data in CSV
+            for movie in results:
+                ia.update(movie)
+                row = [movie["title"], movie["year"], ', '.join(movie["genres"]), movie["plot outline"]]
+                csv_writer.writerow(row)
+
+            print("Movie data saved in", csv_filename)
+
+elif search_type == 'P':
+    search_query = input("Enter a person's name or search query: ")
+
+    results = ia.search_person(search_query)
+
+    # Check if any people were found
+    if not results:
+        print("No people found for the given query.")
+    else:
+        csv_filename = "people_data.csv"
+        csv_headers = ["Name"]
+
+        with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(csv_headers)
+
+            for person in results:
+                ia.update(person)
+                row = [person["name"]]
+                csv_writer.writerow(row)
+
+            print("Person data saved in", csv_filename)
+
+else:
+    print("Invalid search type. Please enter 'M' for movies or 'P' for people.")
